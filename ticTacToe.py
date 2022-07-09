@@ -1,20 +1,50 @@
 # TODO: Game Over: Cats Game vs Victory
-# Ask if players want to continue playing
+# Ask if players want to play again
 # Track scores
-# Custom player names
-		
+# Custom player names √
+# Make bot smarter, selecting to block opponent victory, from most likely to win
+import random
+
 class Board:
 	def reset(self):
 		self.positions = [0] * 9
-		self.threeInARowPositions = [[0,1,2],[3,4,5],[6,7,8],[0,4,8],[2,4,6],[0,3,6],[1,4,7],[2,5,8]]
-		self.promptString = "Player {0}, select where you want to go next: "
-		self.congrats = "Congrats player {0}"
-		self.currentPlayer = 0
 
 	def __init__(self):
+		self.threeInARowPositions = [[0,1,2],[3,4,5],[6,7,8],[0,4,8],[2,4,6],[0,3,6],[1,4,7],[2,5,8]]
+		self.promptString = "{0}, select where you want to go next: "
+		self.congrats = "Congrats {0}"
+		self.namePrompt = "Enter name of player {0}: "
+		self.currentPlayer = 0
+		self.playerNames = ["Player 1","Player 2"]
+		self.twoPlayer = False
 		self.reset()
+		self.botOrPlayer()
+		self.setNames()
 
-	def getSymbol(self,c):
+	def botOrPlayer(self):
+		inStr = ""
+		while inStr == "":
+			try:
+				inStr = input("Do you want to play with a second player? (y/n): ").strip().lower()
+				if inStr != 'y' and inStr != 'n':
+					raise TypeError() 
+			except TypeError:
+				print("Please input 'y' or 'n'")
+				inStr = ""
+		if inStr == 'y':
+			self.twoPlayer = True
+
+	def setNames(self):
+		self.inputName(1)
+		if self.twoPlayer:
+			self.inputName(2)
+
+	def inputName(self,playerNumber):
+		nameInput = input(self.namePrompt.format(playerNumber)).strip()
+		if nameInput != "":
+			self.playerNames[playerNumber-1] = nameInput
+
+	def getSymbol(self, c):
 		if c == 1:
 			return "X"
 		elif c == 2:
@@ -47,7 +77,7 @@ class Board:
 			self.currentPlayer = 2
 		else:
 			self.currentPlayer = 1
-		print("Player {0} is up".format(self.currentPlayer))
+		print(f"\n{self.playerNames[self.currentPlayer-1]} is up")
 
 	def updatePositions(self, location = -1, newValue = 0):
 		if location > -1 and location < 9 and self.positions[location] == 0:
@@ -85,19 +115,31 @@ class Board:
 	def prompt(self):
 		self.display()
 		self.guide()
-		while not self.updatePositions(int(input(self.promptString.format(self.currentPlayer)))-1,self.currentPlayer):
+		while not self.updatePositions(int(input(self.promptString.format(self.playerNames[self.currentPlayer-1])))-1,self.currentPlayer):
 			continue
 
 	def declareWinner(self):
-		print(self.congrats.format(self.currentPlayer))
+		print(self.congrats.format(self.playerNames[self.currentPlayer-1]))
 		self.display()
 
 	def play(self):
-		self.reset()
+		# self.reset()
 		while not self.isGameOver():
-			self.switchPlayer()
-			self.prompt()
+			if self.twoPlayer:
+				self.switchPlayer()
+				self.prompt()
+			else:
+				if self.currentPlayer == 1:
+					self.prompt()
+				else:
+					self.bot()
 		self.declareWinner()
+
+	def find(self, lst, a):
+		return [i for i, x in enumerate(lst) if x==a]
+
+	def bot(self):
+		self.updatePositions(random.choice(self.find(self.positions,0)),2)
 
 b = Board()
 
