@@ -12,7 +12,7 @@ class Board:
 	def __init__(self):
 		self.threeInARowPositions = [[0,1,2],[3,4,5],[6,7,8],[0,4,8],[2,4,6],[0,3,6],[1,4,7],[2,5,8]]
 		self.promptString = "{0}, select where you want to go next: "
-		self.congrats = "Congrats {0}"
+		self.congrats = "Congrats {0}!"
 		self.namePrompt = "Enter name of player {0}: "
 		self.currentPlayer = 0
 		self.playerNames = ["Player 1","Player 2"]
@@ -123,10 +123,9 @@ class Board:
 		self.display()
 
 	def play(self):
-		# self.reset()
 		while not self.isGameOver():
+			self.switchPlayer()
 			if self.twoPlayer:
-				self.switchPlayer()
 				self.prompt()
 			else:
 				if self.currentPlayer == 1:
