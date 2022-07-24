@@ -17,6 +17,7 @@ class Board:
 		self.currentPlayer = 0
 		self.playerNames = ["Player 1","Player 2"]
 		self.twoPlayer = False
+		self.botDifficulty = 0
 		self.reset()
 		self.botOrPlayer()
 		self.setNames()
@@ -138,7 +139,36 @@ class Board:
 		return [i for i, x in enumerate(lst) if x==a]
 
 	def bot(self):
-		self.updatePositions(random.choice(self.find(self.positions,0)),2)
+		self.updatePositions(self.spotFinder(),2)
+
+	def spotFinder(self):
+		# Current set up will select position to go based on threeInARowPositions order. Check all possible winning combos and then pick bot winning first and blocking player second
+		# take botDifficulty value and use it to modify random selection of bot positioning
+		# if bot has two in a row and third in row open, go for it √
+		# if player has two in a row and third in row open, go for it √
+		# determine what spots are most likely to win for player and go
+		# determine what spots are most likely for bot to win and go for it
+		plaPos = set(self.find(self.positions,1))
+		botPos = set(self.find(self.positions,2))
+		for option in self.threeInARowPositions:
+			option = set(option)
+			plaPosInOpt = plaPos.intersection(option)
+			botPosInOpt = botPos.intersection(option)
+			plaCount = len(plaPosInOpt)
+			botCount = len(botPosInOpt)
+			# print("botPosInOpt",botPosInOpt)
+			# print("botCount",botCount)
+			# print("plaPosInOpt",plaPosInOpt)
+			# print("plaCount",plaCount)
+			if botCount == 2 and plaCount == 0:
+				# print(option.difference(botPosInOpt))
+				return list(option.difference(botPosInOpt))[0]
+			elif botCount == 0 and plaCount == 2:
+				# print(option.difference(plaPosInOpt))
+				return list(option.difference(plaPosInOpt))[0]
+		if self.botDifficulty == 0:
+			return random.choice(self.find(self.positions,0))
+
 
 b = Board()
 
