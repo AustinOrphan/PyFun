@@ -2,12 +2,15 @@
 # Ask if players want to play again
 # Track scores
 # Custom player names √
-# Make bot smarter, selecting to block opponent victory, from most likely to win
+# Make bot smarter, selecting to block opponent victory, from most likely to win √
+# Change positions and positionWeight to dicts
+# Dicts enable randomization of positions to pick based on weights
 import random
 
 class Board:
-	def reset(self):
+	def resetGame(self):
 		self.positions = [0] * 9
+		self.resetWeight()
 
 	def __init__(self):
 		self.threeInARowPositions = [[0,1,2],[3,4,5],[6,7,8],[0,4,8],[2,4,6],[0,3,6],[1,4,7],[2,5,8]]
@@ -18,7 +21,7 @@ class Board:
 		self.playerNames = ["Player 1","Player 2"]
 		self.twoPlayer = False
 		self.botDifficulty = 0
-		self.reset()
+		self.resetGame()
 		self.botOrPlayer()
 		self.setNames()
 
@@ -106,6 +109,8 @@ class Board:
 
 	def isGameOver(self):
 		t = self.positions
+		if 0 not in t:
+			return True
 		for pSet in self.threeInARowPositions:
 			if t[pSet[0]] == 0:
 				continue
@@ -141,13 +146,17 @@ class Board:
 	def bot(self):
 		self.updatePositions(self.spotFinder(),2)
 
+	def resetWeight(self):
+		self.positionWeight = [0] * 9
+
 	def spotFinder(self):
-		# Current set up will select position to go based on threeInARowPositions order. Check all possible winning combos and then pick bot winning first and blocking player second
+		# Current set up will select position to go based on threeInARowPositions order. Check all possible winning combos and then pick bot winning first and blocking player second √
 		# take botDifficulty value and use it to modify random selection of bot positioning
 		# if bot has two in a row and third in row open, go for it √
 		# if player has two in a row and third in row open, go for it √
-		# determine what spots are most likely to win for player and go
-		# determine what spots are most likely for bot to win and go for it
+		# determine what spots are most likely to win for player and go √
+		# determine what spots are most likely for bot to win and go for it √
+		self.resetWeight()
 		plaPos = set(self.find(self.positions,1))
 		botPos = set(self.find(self.positions,2))
 		for option in self.threeInARowPositions:
@@ -161,11 +170,32 @@ class Board:
 			# print("plaPosInOpt",plaPosInOpt)
 			# print("plaCount",plaCount)
 			if botCount == 2 and plaCount == 0:
-				# print(option.difference(botPosInOpt))
-				return list(option.difference(botPosInOpt))[0]
+				# print("option",option)
+				# print("botPosInOpt",botPosInOpt)
+				# print("bot winning pos:",list(option.difference(botPosInOpt))[0])
+				self.positionWeight[list(option.difference(botPosInOpt))[0]] += 5
+				# print("bot winning weight:",self.positionWeight[list(option.difference(botPosInOpt))[0]])
 			elif botCount == 0 and plaCount == 2:
-				# print(option.difference(plaPosInOpt))
-				return list(option.difference(plaPosInOpt))[0]
+				print("option",option)
+				# print("plaPosInOpt",plaPosInOpt)
+				# print("pla winning pos:",list(option.difference(plaPosInOpt))[0])
+				self.positionWeight[list(option.difference(plaPosInOpt))[0]] += 1
+				# print("pla winning weight:",self.positionWeight[list(option.difference(plaPosInOpt))[0]])
+		i = 0
+		goHere = 0
+		while i < len(self.positionWeight):
+			if(self.positions[i] == 0):
+				# print(self.positionWeight)
+				# print(self.positionWeight[goHere]," <= ",self.positionWeight[i],"?")
+				if self.positionWeight[goHere] <= self.positionWeight[i]:
+					# print("yes")
+					goHere = i
+			# 	else:
+			# 		print("no")
+			# print("i:",i,"\n[i]:",self.positionWeight[i])
+			i += 1
+		return goHere
+
 		if self.botDifficulty == 0:
 			return random.choice(self.find(self.positions,0))
 
