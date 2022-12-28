@@ -17,26 +17,33 @@ class Board:
 		self.promptString = "{0}, select where you want to go next: "
 		self.congrats = "Congrats {0}!"
 		self.namePrompt = "Enter name of player {0}: "
+		self.keepGoingPrompt = "Would you like to keep playing? (y/n):"
 		self.currentPlayer = 0
 		self.playerNames = ["Player 1","Player 2"]
+		self.scoreReport = "{0} has {1} wins to {2}'s {3}"
 		self.twoPlayer = False
 		self.botDifficulty = 0
 		self.resetGame()
 		self.botOrPlayer()
 		self.setNames()
+		self.scores = [0,0]
+		self.keepGoing = True
 
-	def botOrPlayer(self):
+	def ynInput(self, ynPrompt):
 		inStr = ""
 		while inStr == "":
 			try:
-				inStr = input("Do you want to play with a second player? (y/n): ").strip().lower()
+				inStr = input(ynPrompt).strip().lower()
 				if inStr != 'y' and inStr != 'n':
 					raise TypeError() 
 			except TypeError:
 				print("Please input 'y' or 'n'")
 				inStr = ""
 		if inStr == 'y':
-			self.twoPlayer = True
+			return True
+
+	def botOrPlayer(self):
+		self.twoPlayer = self.ynInput("Do you want to play with a second player? (y/n): ")
 
 	def setNames(self):
 		self.inputName(1)
@@ -125,8 +132,16 @@ class Board:
 			continue
 
 	def declareWinner(self):
+		# Ignore Cats Game and restart
+		# Congratulate winner (current player)
 		print(self.congrats.format(self.playerNames[self.currentPlayer-1]))
+		# Increase score
+		self.scores[self.currentPlayer-1] += 1
+		# Show final board
 		self.display()
+
+	def getScores(self):
+		print(self.scoreReport.format(self.playerNames[0], self.scores[0], self.playerNames[1], self.scores[1]))
 
 	def play(self):
 		while not self.isGameOver():
@@ -139,6 +154,16 @@ class Board:
 				else:
 					self.bot()
 		self.declareWinner()
+		self.resetGame()
+
+	def keepGoingIn(self):
+		self.keepGoing = self.ynInput("Do you want to continue playing? (y/n): ")
+
+	def run(self):
+		while self.keepGoing:
+			self.play()
+			self.getScores()
+			self.keepGoingIn()
 
 	def find(self, lst, a):
 		return [i for i, x in enumerate(lst) if x==a]
@@ -202,5 +227,5 @@ class Board:
 
 b = Board()
 
-b.play()
+b.run()
 
