@@ -201,7 +201,7 @@ class Board:
 				self.positionWeight[list(option.difference(botPosInOpt))[0]] += 5
 				# print("bot winning weight:",self.positionWeight[list(option.difference(botPosInOpt))[0]])
 			elif botCount == 0 and plaCount == 2:
-				print("option",option)
+				# print("option",option)
 				# print("plaPosInOpt",plaPosInOpt)
 				# print("pla winning pos:",list(option.difference(plaPosInOpt))[0])
 				self.positionWeight[list(option.difference(plaPosInOpt))[0]] += 1
